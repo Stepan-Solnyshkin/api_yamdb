@@ -8,6 +8,14 @@ class Title(models.Model):
     pass
 
 
+class Categories(models.Model):
+    pass
+
+
+class Genres(models.Model):
+    pass
+
+
 class Review(models.Model):
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews'
