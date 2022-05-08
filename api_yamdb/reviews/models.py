@@ -17,7 +17,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True)
 
     def __str__(self):
-        return f'Category(id={self.pk}, name ={self.name})'
+        return f'Genre(id={self.pk}, name ={self.name})'
 
 
 class Title(models.Model):
