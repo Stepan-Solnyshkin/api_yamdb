@@ -4,16 +4,31 @@ from django.db import models
 User = get_user_model()
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return f'Category(id={self.pk}, name ={self.name})'
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return f'Category(id={self.pk}, name ={self.name})'
+
+
 class Title(models.Model):
-    pass
+    name = models.CharField(max_length=50)
+    year = models.DateField
+    category = models.ForeignKey(
+        Category, related_name='title'
+    )
 
-
-class Categories(models.Model):
-    pass
-
-
-class Genres(models.Model):
-    pass
+    def __str__(self):
+        return f'Title(id={self.pk}, name ={self.name})'
 
 
 class Review(models.Model):
