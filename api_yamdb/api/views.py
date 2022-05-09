@@ -1,17 +1,28 @@
 from rest_framework import filters, mixins, permissions, viewsets
 
-from reviews.models import Title, Comment, Review
-from .serializers import (CommentSerializer, ReviewSerializer)
+from reviews.models import Category, Comment, Genre, Title, Review
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, TitleSerializer, ReviewSerializer)
 
 
-class TitleViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = Title.Serializer
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class CommentViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitleViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
 
 
 class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
