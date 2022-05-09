@@ -19,7 +19,7 @@ class Genre(models.Model):
 
     def __str__(self):
         return f'Genre {self.name}, slug {self.slug}'
-
+# Stepan, cудя по .csv файлам еще должна быть модель genre_title
 
 class Title(models.Model):
     name = models.CharField()
@@ -28,12 +28,14 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, related_name='titles'
     )
-    # ManyToManyField - думаю тут так нужно разные жанры к разным произведениям
+    # Stepan, ManyToManyField - думаю нужно, (разные жанры к разным
+    # произведениям)
     genre = models.ForeignKey(
         Genre, on_delete=models.PROTECT, related_name='titles'
     )
 
-    # в POST запросе в Response есть поле "rating", нужно учесть в модели.
+    # Stepan, в POST запросе в Response есть поле "rating", нужно учесть в
+    # модели.
     def __str__(self):
         return f'Title {self.name}, genre {self.genre}, {self.year}'
 
