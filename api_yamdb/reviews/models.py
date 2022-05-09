@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -18,7 +19,7 @@ class Genre(models.Model):
 
     def __str__(self):
         return f'Genre {self.name}, slug {self.slug}'
-
+# Stepan, cудя по .csv файлам еще должна быть модель genre_title
 
 class Title(models.Model):
     name = models.CharField()
@@ -27,27 +28,43 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, related_name='titles'
     )
+    # Stepan, ManyToManyField - думаю нужно, (разные жанры к разным
+    # произведениям)
     genre = models.ForeignKey(
         Genre, on_delete=models.PROTECT, related_name='titles'
     )
 
+    # Stepan, в POST запросе в Response есть поле "rating", нужно учесть в
+    # модели.
     def __str__(self):
         return f'Title {self.name}, genre {self.genre}, {self.year}'
 
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews'
+        Title, on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение.',
     )
     text = models.CharField(max_length=1000)
-    score = models.IntegerField()
+    score = models.IntegerField(
+        default=1,
+        validators=[
+            MaxValueValidator(1),
+            MinValueValidator(10)
+        ],
+        verbose_name='Оценка.',
+    )
 
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews'
+        User, on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор',
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
-        db_index=True
+        db_index=True,
+        verbose_name='Дата публикации',
     )
 
     def __str__(self):
@@ -56,21 +73,28 @@ class Review(models.Model):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
+        User, on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор',
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='comments'
+        Title, on_delete=models.CASCADE, related_name='comments',
+        verbose_name='Произведение',
     )
 
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments'
+        Review, on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Ревью',
     )
-    text = models.TextField()
+    text = models.TextField(
+        max_length=1000,
+        verbose_name='Текст комментария',
+    )
     pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True
+        auto_now_add=True,
+        verbose_name='Дата публикации',
     )
 
     def __str__(self):
-        return f'Comment(pk={self.pk}, text={self.author}, group' \
-               f'={self.text})'
-    # тут не text вместо group?
+        return f'Comment(pk={self.pk}, author={self.author}, text={self.text})'
