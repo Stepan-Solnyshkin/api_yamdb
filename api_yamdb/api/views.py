@@ -1,7 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, status, viewsets
+from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -36,10 +36,20 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TitleSerializer
 
 
-class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
+class ReviewViewSet(viewsets.ModelViewSet):
 
+    serializer_class = ReviewSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)    
+    
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -105,3 +115,14 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+      
+    permission_classes = []
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)

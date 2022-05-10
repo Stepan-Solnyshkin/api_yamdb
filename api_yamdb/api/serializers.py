@@ -43,6 +43,18 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True,
+    )
+    author = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        slug_field='username',
+        read_only=True
+    )
+
+    def validate(self, data):
+        pass
 
     class Meta:
         fields = '__all__'
