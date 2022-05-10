@@ -14,7 +14,7 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
@@ -22,7 +22,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField()
+    name = models.CharField(max_length=150)
     year = models.IntegerField()
     description = models.TextField()
     category = models.ForeignKey(
@@ -60,7 +60,7 @@ class Review(models.Model):
             MaxValueValidator(1),
             MinValueValidator(10)
         ],
-        related_name='reviews',
+        # related_name='reviews',
         verbose_name='Оценка.',
     )
 

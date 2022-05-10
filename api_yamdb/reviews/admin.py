@@ -1,3 +1,4 @@
 from django.contrib import admin
 
-# Register your models here.
+# Надо зарегестрировать модели
+# Степан, ты решил за всех модели сделать?
