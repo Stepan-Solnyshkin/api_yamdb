@@ -59,3 +59,31 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    confirmation_code = serializers.CharField(allow_blank=False)
+    username = serializers.CharField(max_length=150, allow_blank=False)
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=254, allow_blank=False)
+    username = serializers.CharField(max_length=150, allow_blank=False)
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=254, allow_blank=False)
+    username = serializers.CharField(max_length=150, allow_blank=False)
+
+    class Meta:
+        model = User
+        fields = ('email', 'username')
