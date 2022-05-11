@@ -66,6 +66,14 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Review
 
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['title', 'user'],
+                message='Уже оставлен отзыв произведение.'
+            )
+        ]
+
 
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(allow_blank=False)
