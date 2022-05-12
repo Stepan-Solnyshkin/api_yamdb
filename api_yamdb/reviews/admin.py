@@ -17,7 +17,7 @@ class TitleAdmin(admin.ModelAdmin):
     empty_value_display = "-пусто-"
 
 
-admin.site.register(Title, TitleAdmin)
+admin.site.register(Title)
 admin.site.register(Genre)
 admin.site.register(Comment)
 admin.site.register(Review)
