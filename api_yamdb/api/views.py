@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Comment, Genre, Title, Review
+from reviews.models import Category, Comment, Genre, Title
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, SignUpSerializer, TitleSerializer,
                           TokenSerializer, ReviewSerializer, UserSerializer)
@@ -58,8 +58,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)    
-    
+        serializer.save(author=self.request.user, title=title)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -125,4 +125,3 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
