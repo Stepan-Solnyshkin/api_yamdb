@@ -13,7 +13,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           TokenSerializer, ReviewSerializer, UserSerializer)
 from users.models import User
 from django.conf import settings
-from .permission import AdminOnly, OnlyOwnAccount
+from .permission import *
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -23,7 +23,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CommentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = []
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
@@ -49,7 +49,7 @@ class TitleViewSet(viewsets.ReadOnlyModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
-    permission_classes = []
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))

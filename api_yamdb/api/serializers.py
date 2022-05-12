@@ -59,9 +59,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def validate(self, data):
-        pass
-
     class Meta:
         fields = '__all__'
         model = Review
