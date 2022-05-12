@@ -14,7 +14,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True,
+        slug_field='username'
+    )
+
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
     )
 
     class Meta:
@@ -53,12 +59,17 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    def validate(self, data):
-        pass
-
     class Meta:
         fields = '__all__'
         model = Review
+
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=['title', 'user'],
+                message='Уже оставлен отзыв произведение.'
+            )
+        ]
 
 
 class TokenSerializer(serializers.ModelSerializer):

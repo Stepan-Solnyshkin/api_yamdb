@@ -51,7 +51,7 @@ class Review(models.Model):
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE,
         related_name='reviews',
-        verbose_name='Произведение.',
+        verbose_name='Произведение',
     )
     text = models.CharField(max_length=1000)
     score = models.IntegerField(
@@ -60,8 +60,7 @@ class Review(models.Model):
             MaxValueValidator(1),
             MinValueValidator(10)
         ],
-        # related_name='reviews',
-        verbose_name='Оценка.',
+        verbose_name='Оценка',
     )
 
     author = models.ForeignKey(
@@ -93,7 +92,7 @@ class Comment(models.Model):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE,
         related_name='comments',
-        verbose_name='Ревью',
+        verbose_name='Отзыв',
     )
     text = models.TextField(
         max_length=1000,
