@@ -7,13 +7,17 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import Category, Comment, Genre, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, SignUpSerializer, TitleSerializer,
                           TokenSerializer, ReviewSerializer, UserSerializer)
 from users.models import User
 from django.conf import settings
-from .permission import *
+from .permission import (
+    AdminOnly,
+    IsAdminModeratorOwnerOrReadOnly,
+    OnlyOwnAccount
+    )
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
