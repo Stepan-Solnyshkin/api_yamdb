@@ -17,7 +17,7 @@ from .permission import (
     AdminOnly,
     IsAdminModeratorOwnerOrReadOnly,
     OnlyOwnAccount
-    )
+)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -68,25 +68,55 @@ class ReviewViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registration(request):
-    serializer = SignUpSerializer(data=request.data)
+    username = request.data.get('username')
+    if not User.objects.filter(username=username).exists():
+        serializer = SignUpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data['username'] != 'me':
+            serializer.save()
+            user = get_object_or_404(
+                User,
+                username=serializer.validated_data['username']
+            )
+            confirmation_code = default_token_generator.make_token(user)
+            send_mail(
+                f'Ваш код подтверждения {confirmation_code}',
+                settings.EMAIL_FOR_AUTH_LETTERS,
+                [request.data['email']],
+                recipient_list=None,
+                fail_silently=True
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            'Username указан неверно!', status=status.HTTP_400_BAD_REQUEST
+        )
+    user = get_object_or_404(User, username=username)
+    serializer = SignUpSerializer(
+        user, data=request.data, partial=True
+    )
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
+    if serializer.validated_data['email'] == user.email:
+        serializer.save()
+        user = get_object_or_404(
+            User,
+            username=serializer.validated_data['username']
+        )
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            f'Ваш код подтверждения {confirmation_code}',
+            settings.EMAIL_FOR_AUTH_LETTERS,
+            [request.data['email']],
+            recipient_list=None,
+            fail_silently=True
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(
+        'email указан неверно!', status=status.HTTP_400_BAD_REQUEST
     )
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        f'Ваш код подтверждения {confirmation_code}',
-        settings.EMAIL_FOR_AUTH_LETTERS,
-        [request.data['email']],
-        fail_silently=True
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
-@permission_classes([permissions.AllowAny])
+@permission_classes([AllowAny])
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
