@@ -38,6 +38,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
+
     class Meta:
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
@@ -70,6 +71,8 @@ class ReviewSerializer(serializers.ModelSerializer):
                 message='Уже оставлен отзыв произведение.'
             )
         ]
+
+
 
 
 class TokenSerializer(serializers.ModelSerializer):
