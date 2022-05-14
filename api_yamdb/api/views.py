@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -12,7 +14,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, SignUpSerializer, TitleSerializer,
                           TokenSerializer, ReviewSerializer, UserSerializer)
 from users.models import User
-from django.conf import settings
+from api_yamdb import settings
 from .permission import (
     AdminOnly,
     IsAdminModeratorOwnerOrReadOnly,
@@ -78,21 +80,20 @@ def registration(request):
         serializer.is_valid(raise_exception=True)
         if serializer.validated_data['username'] != 'me':
             serializer.save()
-            user = get_object_or_404(
-                User,
-                username=serializer.validated_data['username']
-            )
-            confirmation_code = default_token_generator.make_token(user)
+            user = get_object_or_404(User, username=username)
+            confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
+            user.confirmation_code = confirmation_code
             send_mail(
-                f'Ваш код подтверждения {confirmation_code}',
+                'Код подтвержения для завершения регистрации',
+                f'Ваш код для получения JWT токена {user.confirmation_code}',
                 settings.EMAIL_FOR_AUTH_LETTERS,
-                [request.data['email']],
-                recipient_list=None,
-                fail_silently=True
+                [user.email],
+                fail_silently=False,
             )
+            user.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
-            'Username указан неверно!', status=status.HTTP_400_BAD_REQUEST
+            'Username указан невено!', status=status.HTTP_400_BAD_REQUEST
         )
     user = get_object_or_404(User, username=username)
     serializer = SignUpSerializer(
@@ -101,21 +102,20 @@ def registration(request):
     serializer.is_valid(raise_exception=True)
     if serializer.validated_data['email'] == user.email:
         serializer.save()
-        user = get_object_or_404(
-            User,
-            username=serializer.validated_data['username']
-        )
-        confirmation_code = default_token_generator.make_token(user)
+        user = get_object_or_404(User, username=username)
+        confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
+        user.confirmation_code = confirmation_code
         send_mail(
-            f'Ваш код подтверждения {confirmation_code}',
+            'Код подтвержения для завершения регистрации',
+            f'Ваш код для получения JWT токена {user.confirmation_code}',
             settings.EMAIL_FOR_AUTH_LETTERS,
-            [request.data['email']],
-            recipient_list=None,
-            fail_silently=True
+            [user.email],
+            fail_silently=False,
         )
+        user.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(
-        'email указан неверно!', status=status.HTTP_400_BAD_REQUEST
+        'Почта указана неверно!', status=status.HTTP_400_BAD_REQUEST
     )
 
 
@@ -160,6 +160,6 @@ class UsersViewSet(viewsets.ModelViewSet):
                 partial=True
             )
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
