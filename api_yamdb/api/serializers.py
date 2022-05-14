@@ -38,7 +38,6 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
-
     class Meta:
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
@@ -73,8 +72,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
 class TokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(allow_blank=False)
     username = serializers.CharField(max_length=150, allow_blank=False)
@@ -85,8 +82,6 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, allow_blank=False)
-    username = serializers.CharField(max_length=150, allow_blank=False)
 
     class Meta:
         model = User
@@ -95,8 +90,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(max_length=254, allow_blank=False)
-    username = serializers.CharField(max_length=150, allow_blank=False)
 
     class Meta:
         model = User
