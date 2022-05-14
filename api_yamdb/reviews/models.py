@@ -31,7 +31,13 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         through='Genre_title',
+        default=None,
         related_name='titles',
+    )
+
+    rating = models.IntegerField(
+        null=True,
+        default=None
     )
 
     def __str__(self):
@@ -39,12 +45,12 @@ class Title(models.Model):
 
 
 class Genre_title(models.Model):
-    title_id = models.ForeignKey(Title, on_delete=models.PROTECT)
-    genre_id = models.ForeignKey(Genre, on_delete=models.PROTECT)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE, default=None)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
-        return f'Genre_title {self.pk}, title_id {self.title_id},' \
-               f'genre_id {self.genre_id}.'
+        return f'Genre_title {self.pk}, title_id {self.title},' \
+               f'genre_id {self.genre}.'
 
 
 class Review(models.Model):
@@ -69,8 +75,6 @@ class Review(models.Model):
         verbose_name='Автор',
     )
     pub_date = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True,
         verbose_name='Дата публикации',
     )
 
@@ -89,11 +93,6 @@ class Comment(models.Model):
         verbose_name='Произведение',
     )
 
-    review = models.ForeignKey(
-        Review, on_delete=models.CASCADE,
-        related_name='comments',
-        verbose_name='Отзыв',
-    )
     text = models.TextField(
         max_length=1000,
         verbose_name='Текст комментария',
