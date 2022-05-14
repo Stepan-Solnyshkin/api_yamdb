@@ -16,13 +16,15 @@ from django.conf import settings
 from .permission import (
     AdminOnly,
     IsAdminModeratorOwnerOrReadOnly,
-    OnlyOwnAccount
+    OnlyOwnAccount,
+    AdminOrReadOnly
 )
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [AdminOrReadOnly]
 
 
 class CommentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,11 +45,13 @@ class CommentViewSet(viewsets.ReadOnlyModelViewSet):
 class GenreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = [AdminOrReadOnly]
 
 
 class TitleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    permission_classes = [AdminOrReadOnly]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
