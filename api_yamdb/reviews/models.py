@@ -30,7 +30,7 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        through='Genre_title',
+        through='GenreTitle',
         default=None,
         related_name='titles',
     )
@@ -44,17 +44,17 @@ class Title(models.Model):
         return f'Title {self.name}, genre {self.genre}, {self.year}'
 
 
-class Genre_title(models.Model):
-    title_id = models.ForeignKey(Title, on_delete=models.CASCADE, default=None)
-    genre_id = models.ForeignKey(Genre, on_delete=models.CASCADE, default=None)
+class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'Genre_title {self.pk}, title_id {self.title},' \
-               f'genre_id {self.genre}.'
+        return f'GenreTitle {self.pk}, title {self.title},' \
+               f'genre {self.genre}.'
 
 
 class Review(models.Model):
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title, on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение',
@@ -78,6 +78,14 @@ class Review(models.Model):
         verbose_name='Дата публикации',
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review'
+            ),
+        ]
+
     def __str__(self):
         return f'Reviews(id={self.pk}, text ={self.text})'
 
@@ -89,7 +97,7 @@ class Comment(models.Model):
         verbose_name='Автор',
     )
 
-    review_id = models.ForeignKey(
+    review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',
         on_delete=models.CASCADE,
