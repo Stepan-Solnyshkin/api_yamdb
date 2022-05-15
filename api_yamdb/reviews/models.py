@@ -54,7 +54,7 @@ class Genre_title(models.Model):
 
 
 class Review(models.Model):
-    title = models.ForeignKey(
+    title_id = models.ForeignKey(
         Title, on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение',
@@ -88,6 +88,13 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Автор',
     )
+
+    review_id = models.ForeignKey(
+        Review,
+        verbose_name='Отзыв',
+        on_delete=models.CASCADE,
+        related_name='comments')
+
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='comments',
         verbose_name='Произведение',
