@@ -45,8 +45,8 @@ class Title(models.Model):
 
 
 class Genre_title(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE, default=None)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, default=None)
+    title_id = models.ForeignKey(Title, on_delete=models.CASCADE, default=None)
+    genre_id = models.ForeignKey(Genre, on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return f'Genre_title {self.pk}, title_id {self.title},' \
