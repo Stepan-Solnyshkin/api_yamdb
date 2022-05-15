@@ -23,13 +23,16 @@ from .permission import (
 )
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet,):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AdminOrReadOnly]
 
 
-class CommentViewSet(viewsets.ReadOnlyModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
@@ -44,20 +47,22 @@ class CommentViewSet(viewsets.ReadOnlyModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+class GenreViewSet(mixins.ListModelMixin,
+                   mixins.CreateModelMixin,
+                   mixins.DestroyModelMixin,
+                   viewsets.GenericViewSet, ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [AdminOrReadOnly]
 
 
-class TitleViewSet(viewsets.ReadOnlyModelViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = [AdminOrReadOnly]
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-
     serializer_class = ReviewSerializer
     permission_classes = [IsAdminModeratorOwnerOrReadOnly]
 
@@ -130,7 +135,7 @@ def get_token(request):
     )
 
     if default_token_generator.check_token(
-        user, serializer.validated_data['confirmation_code']
+            user, serializer.validated_data['confirmation_code']
     ):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
