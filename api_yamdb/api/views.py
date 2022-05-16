@@ -1,31 +1,27 @@
 import uuid
 
+from api_yamdb import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models.aggregates import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
 from reviews.models import Category, Genre, Review, Title
-from .filterset import TitleFilter
-from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, SignUpSerializer, TitleSerializer,
-                          TitleCreateSerializer, TokenSerializer,
-                          ReviewSerializer, UserSerializer)
 from users.models import User
-from api_yamdb import settings
-from .permission import (
-    AdminOnly,
-    IsAdminModeratorOwnerOrReadOnly,
-    OnlyOwnAccount,
-    AdminOrReadOnly
-)
+
+from .filterset import TitleFilter
+from .permission import (AdminOnly, AdminOrReadOnly,
+                         IsAdminModeratorOwnerOrReadOnly, OnlyOwnAccount)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, SignUpSerializer,
+                          TitleCreateSerializer, TitleSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class CategoryViewSet(mixins.ListModelMixin,
@@ -95,6 +91,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=title)
 
 
+def send_email_with_confirmation_code(username):
+    user = get_object_or_404(User, username=username)
+    confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
+    user.confirmation_code = confirmation_code
+    send_mail(
+        'Код подтвержения для завершения регистрации',
+        f'Ваш код для получения JWT токена {user.confirmation_code}',
+        settings.EMAIL_FOR_AUTH_LETTERS,
+        [user.email],
+        fail_silently=False,
+    )
+    user.save()
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registration(request):
@@ -104,20 +114,10 @@ def registration(request):
         serializer.is_valid(raise_exception=True)
         if serializer.validated_data['username'] != 'me':
             serializer.save()
-            user = get_object_or_404(User, username=username)
-            confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
-            user.confirmation_code = confirmation_code
-            send_mail(
-                'Код подтвержения для завершения регистрации',
-                f'Ваш код для получения JWT токена {user.confirmation_code}',
-                settings.EMAIL_FOR_AUTH_LETTERS,
-                [user.email],
-                fail_silently=False,
-            )
-            user.save()
+            send_email_with_confirmation_code(username)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
-            'Username указан невено!', status=status.HTTP_400_BAD_REQUEST
+            'Username указан неверно!', status=status.HTTP_400_BAD_REQUEST
         )
     user = get_object_or_404(User, username=username)
     serializer = SignUpSerializer(
@@ -126,20 +126,10 @@ def registration(request):
     serializer.is_valid(raise_exception=True)
     if serializer.validated_data['email'] == user.email:
         serializer.save()
-        user = get_object_or_404(User, username=username)
-        confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
-        user.confirmation_code = confirmation_code
-        send_mail(
-            'Код подтвержения для завершения регистрации',
-            f'Ваш код для получения JWT токена {user.confirmation_code}',
-            settings.EMAIL_FOR_AUTH_LETTERS,
-            [user.email],
-            fail_silently=False,
-        )
-        user.save()
+        send_email_with_confirmation_code(username)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(
-        'Почта указана неверно!', status=status.HTTP_400_BAD_REQUEST
+        'Email указана неверно!', status=status.HTTP_400_BAD_REQUEST
     )
 
 
@@ -171,7 +161,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get', 'patch'],
             permission_classes=(OnlyOwnAccount, IsAuthenticated))
     def me(self, request):
-        user = get_object_or_404(User, username=self.request.user.username)
+        user = request.user
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
