@@ -1,4 +1,5 @@
-from django.db.models import Avg
+from datetime import date
+
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Title, Review
@@ -8,8 +9,12 @@ from users.models import User
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        exclude = ('id',)
         model = Category
+        fields = ('name', 'slug')
+
+    def create(self, validated_data):
+        category = Category.objects.create(**validated_data)
+        return category
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -31,21 +36,44 @@ class CommentSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id',)
         model = Genre
+        fields = ('name', 'slug')
+
+    def create(self, validated_data):
+        genre = Genre.objects.create(**validated_data)
+        return genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField()
+    category = CategorySerializer(many=False, required=False)
+    genre = GenreSerializer(many=True, required=False)
+    rating = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
-        read_only_fields = ('id', 'rating')
+        read_only_fields = ('genre', 'category', 'rating')
         model = Title
 
-    def get_rating(self, obj):
-        return obj.reviews.all().aggregate(Avg('score'))['average']
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(many=True, write_only=True,
+                                         slug_field='slug', required=False,
+                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(many=False, write_only=True,
+                                            slug_field='slug', required=False,
+                                            queryset=Category.objects.all())
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+
+    def validate_year(self, value):
+        if not 0 < value < date.today().year:
+            raise serializers.ValidationError(
+                'Нельзя добавлять произведения, которые еще не вышли!'
+            )
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
