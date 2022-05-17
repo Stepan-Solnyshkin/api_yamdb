@@ -52,10 +52,3 @@ df = pandas.read_csv(
     header=0
 )
 df.to_sql('genre', connection, if_exists='append', index=False)
-
-df = pandas.read_csv(
-    'api_yamdb/managment/command/review.csv',
-    sep=',',
-    header=0
-)
-df.to_sql('review', connection, if_exists='append', index=False)

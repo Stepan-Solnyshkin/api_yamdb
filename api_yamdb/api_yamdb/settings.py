@@ -109,6 +109,7 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 EMAIL_FOR_AUTH_LETTERS = 'emailforauth@db.com'
 
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
