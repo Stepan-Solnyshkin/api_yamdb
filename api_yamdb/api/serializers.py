@@ -1,7 +1,8 @@
 from datetime import date
 
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
+
+from reviews.models import Category, Comment, Genre, Title, Review
 from users.models import User
 
 
@@ -17,19 +18,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username'
-    )
-
+    author = serializers.SlugRelatedField(slug_field='username',
+                                          read_only=True)
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
     )
 
     class Meta:
-        fields = '__all__'
         model = Comment
+        fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -76,10 +74,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True,
-    )
     author = serializers.SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         slug_field='username',
@@ -87,16 +81,17 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=['title', 'user'],
-                message='Уже оставлен отзыв произведение.'
-            )
-        ]
+    def validate(self, data):
+        is_exist = Review.objects.filter(
+            author=self.context['request'].user,
+            title=self.context['view'].kwargs.get('title_id')).exists()
+        if is_exist and self.context['request'].method == 'POST':
+            raise serializers.ValidationError(
+                'Пользователь уже оставлял отзыв на это произведение')
+        return data
 
 
 class TokenSerializer(serializers.ModelSerializer):
