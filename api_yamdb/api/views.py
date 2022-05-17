@@ -9,7 +9,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.filters import OrderingFilter
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -19,8 +18,7 @@ from users.models import User
 
 from .filterset import TitleFilter
 from .permission import (AdminOnly, AdminOrReadOnly,
-                         IsAdminModeratorOwnerOrReadOnly, OnlyOwnAccount,
-                         IsReviewCommentPermissions)
+                         IsAdminModeratorOwnerOrReadOnly, OnlyOwnAccount)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, SignUpSerializer,
                           TitleCreateSerializer, TitleSerializer,
@@ -41,7 +39,7 @@ class CategoryViewSet(mixins.ListModelMixin,
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsReviewCommentPermissions,
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly,
                           IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
@@ -83,7 +81,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewCommentPermissions,
+    permission_classes = [IsAdminModeratorOwnerOrReadOnly,
                           IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
