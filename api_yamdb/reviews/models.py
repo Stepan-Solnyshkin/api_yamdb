@@ -1,4 +1,5 @@
 from datetime import date
+
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -10,6 +11,9 @@ class Category(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=50, unique=True,)
 
+    class Meta:
+        ordering = ('name',)
+
     def __str__(self):
         return f'Category {self.name}, slug {self.slug}'
 
@@ -17,6 +21,9 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(max_length=50, unique=True,)
+
+    class Meta:
+        ordering = ('name',)
 
     def __str__(self):
         return f'Genre {self.name}, slug {self.slug}'
@@ -34,6 +41,9 @@ class Title(models.Model):
         related_name='titles'
     )
     genre = models.ManyToManyField(Genre, through='GenreTitle')
+
+    class Meta:
+        ordering = ('category', 'name')
 
     def __str__(self):
         return f'Title {self.name}, genre {self.genre}, {self.year}'
@@ -82,6 +92,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        ordering = ('title',)
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -112,6 +123,9 @@ class Comment(models.Model):
         auto_now_add=True,
         verbose_name='Дата публикации',
     )
+
+    class Meta:
+        ordering = ('review', 'author')
 
     def __str__(self):
         return f'Comment(pk={self.pk}, author={self.author}, text={self.text})'
