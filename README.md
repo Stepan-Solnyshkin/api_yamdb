@@ -81,55 +81,64 @@
 
 Клонировать репозиторий и перейти в него в командной строке:
 
-```bash
+```
+bash
 git clone https://github.com/Lets-dancing/api_yamdb
 cd api_yamdb
 ```
 
 Cоздать и активировать виртуальное окружение:
 
-```bash
+```
+bash
 python -m venv venv
 ```
 
 Для *nix-систем:
-```bash
+```
+bash
 source venv/bin/activate
 ```
 
 Для windows-систем:
-```bash
+```
+bash
 source venv/Scripts/activate
 ```
 
 Установить зависимости из файла requirements.txt:
 
-```bash
+```
+bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 Выполнить миграции:
 
-```bash
+```
+bash
 cd api_yamdb
 python3 manage.py migrate
 ```
 
 Создать суперпользователя (для раздачи прав админам):
 
-```bash
+```
+bash
 python manage.py createsuperuser
 ```
 
 Запустить проект:
 
-```bash
+```
+bash
 python manage.py runserver
 ```
 
 Сам проект и админ-панель искать по адресам:
-```bash
+```
+bash
 http://127.0.0.1:8000
 http://127.0.0.1:8000/admin
 ```
