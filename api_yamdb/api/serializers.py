@@ -7,6 +7,7 @@ from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор категории."""
 
     class Meta:
         model = Category
@@ -18,6 +19,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор комментария."""
     author = serializers.SlugRelatedField(slug_field='username',
                                           read_only=True)
     review = serializers.SlugRelatedField(
@@ -31,6 +33,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор жанра."""
 
     class Meta:
         model = Genre
@@ -42,6 +45,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор произведения для получения экземпляра или списка."""
     category = CategorySerializer(many=False, required=False)
     genre = GenreSerializer(many=True, required=False)
     rating = serializers.IntegerField()
@@ -54,6 +58,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор создания экземпляра произведения."""
     genre = serializers.SlugRelatedField(many=True, write_only=True,
                                          slug_field='slug', required=False,
                                          queryset=Genre.objects.all())
@@ -74,6 +79,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для отзывов."""
     author = serializers.SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         slug_field='username',
@@ -95,6 +101,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    """Сериализатор для токена."""
     confirmation_code = serializers.CharField(allow_blank=False)
     username = serializers.CharField(max_length=150, allow_blank=False)
 
@@ -104,6 +111,7 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для пользователя."""
 
     class Meta:
         model = User
@@ -112,6 +120,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для данных регистрации."""
 
     class Meta:
         model = User

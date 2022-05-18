@@ -29,6 +29,7 @@ class CategoryViewSet(mixins.ListModelMixin,
                       mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet, ):
+    """Класс представления категории."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AdminOrReadOnly]
@@ -38,6 +39,7 @@ class CategoryViewSet(mixins.ListModelMixin,
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Класс представления комментария."""
     serializer_class = CommentSerializer
     permission_classes = [IsAdminModeratorOwnerOrReadOnly,
                           IsAuthenticatedOrReadOnly]
@@ -57,6 +59,7 @@ class GenreViewSet(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    viewsets.GenericViewSet, ):
+    """Класс представления жанра."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [AdminOrReadOnly]
@@ -66,6 +69,7 @@ class GenreViewSet(mixins.ListModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Класс представления произведения."""
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -80,6 +84,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Класс представления отзыва."""
     serializer_class = ReviewSerializer
     permission_classes = [IsAdminModeratorOwnerOrReadOnly,
                           IsAuthenticatedOrReadOnly]
@@ -95,6 +100,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 def send_email_with_confirmation_code(username):
+    """Отправка кода подтверждения."""
     user = get_object_or_404(User, username=username)
     confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_DNS, username))
     user.confirmation_code = confirmation_code
@@ -111,6 +117,7 @@ def send_email_with_confirmation_code(username):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def registration(request):
+    """Регистрация пользователя."""
     username = request.data.get('username')
     if not User.objects.filter(username=username).exists():
         serializer = SignUpSerializer(data=request.data)
@@ -139,6 +146,7 @@ def registration(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
+    """Отправка токена."""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
@@ -156,6 +164,7 @@ def get_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Класс представления пользователей."""
     queryset = User.objects.all()
     lookup_field = 'username'
     serializer_class = UserSerializer

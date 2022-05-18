@@ -7,8 +7,13 @@ from users.models import User
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(max_length=50, unique=True,)
+    """Модель для определения категории."""
+    name = models.CharField(
+        max_length=256, unique=True, verbose_name='название категории'
+    )
+    slug = models.SlugField(
+        max_length=50, unique=True, verbose_name='slug категории'
+    )
 
     class Meta:
         ordering = ('name',)
@@ -18,8 +23,13 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-    slug = models.SlugField(max_length=50, unique=True,)
+    """Модель для определения жанра."""
+    name = models.CharField(
+        max_length=150, unique=True, verbose_name='название жанра'
+    )
+    slug = models.SlugField(
+        max_length=50, unique=True, verbose_name='slug жанра'
+    )
 
     class Meta:
         ordering = ('name',)
@@ -29,17 +39,27 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=150)
-    year = models.IntegerField(
-        validators=[MinValueValidator(0),
-                    MaxValueValidator(date.today().year)])
-    description = models.TextField()
+    """Модель для определения произведений."""
+    name = models.CharField(
+        max_length=150, verbose_name='название произведения'
+    )
+    year = models.PositiveSmallIntegerField(
+        db_index=True, validators=[MaxValueValidator(date.today().year)],
+        verbose_name='год создания произведения'
+    )
+    description = models.TextField(
+        blank=True, verbose_name='описание произведения'
+    )
     category = models.ForeignKey(
         Category, blank=True, null=True,
         on_delete=models.SET_NULL,
+        verbose_name='категория',
         related_name='titles'
     )
-    genre = models.ManyToManyField(Genre, through='GenreTitle')
+    genre = models.ManyToManyField(
+        Genre, through='GenreTitle',
+        blank=True, verbose_name='жанр'
+    )
 
     class Meta:
         ordering = ('category', 'name')
@@ -49,6 +69,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    """Модель создания связи между произведениями и их жанрами."""
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
@@ -66,6 +87,7 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    """Модель для определения рецензии."""
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE,
         related_name='reviews',
@@ -104,6 +126,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель для определения комментария."""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='comments',
