@@ -94,11 +94,11 @@ class Review(models.Model):
         verbose_name='Произведение',
     )
     text = models.CharField(max_length=1000)
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         default=1,
         validators=[
-            MaxValueValidator(10),
-            MinValueValidator(1)
+            MinValueValidator(1, 'Оценка не может быть меньше 1.'),
+            MaxValueValidator(10, 'Оценка не может быть больше 10.'),
         ],
         verbose_name='Оценка',
     )
