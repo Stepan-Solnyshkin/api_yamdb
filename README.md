@@ -73,7 +73,7 @@
 
 ```
 bash
-git clone https://github.com/Lets-dancing/api_yamdb
+git clone https://github.com/Stepan-Solnyshkin/api_yamdb
 cd api_yamdb
 ```
 
